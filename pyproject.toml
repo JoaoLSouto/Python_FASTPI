@@ -1,0 +1,26 @@
+[project]
+name = "dio-blog"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "joaolsouto",email = "contato.joaolsouto@gmail.com"}
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn[stabdard] (>=0.40.0,<0.41.0)"
+]
+
+
+[tool.black]
+line-length = 120
+target-versions = ["py312"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
