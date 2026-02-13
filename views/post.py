@@ -4,4 +4,5 @@ from datetime import datetime
 
 class PostOut(BaseModel):
     title: str
-    date: datetime
+    content: str
+    published_at: datetime | None

@@ -9,11 +9,13 @@ DATABASE_URL = "sqlite:///./blog.db"
 metadata = sa.MetaData()
 database = databases.Database(DATABASE_URL)
 engine = sa.create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-metadata.create_all(engine)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from models.post import posts  # noqa
+
+    metadata.create_all(engine)
     await database.connect()
     yield
     await database.disconnect()
