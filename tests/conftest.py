@@ -1,15 +1,15 @@
 import asyncio
 import sys
 from pathlib import Path
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+
+from src.config import settings
 
 # Add src directory to Python path BEFORE importing anything from src
 src_path = Path(__file__).parent.parent
 sys.path.insert(0, str(src_path))
 
-import pytest_asyncio
-from httpx import ASGITransport, AsyncClient
-
-from src.config import settings
 
 settings.database_url = "sqlite:///tests.db"
 
