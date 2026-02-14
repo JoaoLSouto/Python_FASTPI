@@ -13,7 +13,7 @@ ALGORITHM = "HS256"
 
 class AccessToken(BaseModel):
     iss: str
-    sub: int
+    sub: str
     aud: str
     exp: float
     iat: float
@@ -29,7 +29,7 @@ def sign_jwt(user_id: int) -> JWTToken:
     now = time.time()
     payload = {
         "iss": "curso-fastapi.com.br",
-        "sub": user_id,
+        "sub": str(user_id),  # Convert to string for JWT compliance
         "aud": "curso-fastapi",
         "exp": now + (60 * 30),  # 30 minutes
         "iat": now,
@@ -42,9 +42,15 @@ def sign_jwt(user_id: int) -> JWTToken:
 
 async def decode_jwt(token: str) -> JWTToken | None:
     try:
-        decoded_token = jwt.decode(token, SECRET, audience="curso-fastapi", algorithms=[ALGORITHM])
-        _token = JWTToken.model_validate({"access_token": decoded_token})
-        return _token if _token.access_token.exp >= time.time() else None
+        decoded_token = jwt.decode(
+            token, SECRET, audience="curso-fastapi", algorithms=[ALGORITHM]
+        )
+        # Check if token is expired
+        if decoded_token.get("exp", 0) < time.time():
+            return None
+        # Create AccessToken from decoded dict
+        access_token = AccessToken.model_validate(decoded_token)
+        return JWTToken(access_token=access_token)
     except Exception:
         return None
 
@@ -59,21 +65,34 @@ class JWTBearer(HTTPBearer):
 
         if credentials:
             if not scheme == "Bearer":
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication scheme.")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid authentication scheme.",
+                )
 
             payload = await decode_jwt(credentials)
             if not payload:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token.")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid or expired token.",
+                )
             return payload
         else:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authorization code.")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authorization code.",
+            )
 
 
-async def get_current_user(token: Annotated[JWTToken, Depends(JWTBearer())]) -> dict[str, int]:
-    return {"user_id": token.access_token.sub}
+async def get_current_user(
+    token: Annotated[JWTToken, Depends(JWTBearer())],
+) -> dict[str, int]:
+    return {"user_id": int(token.access_token.sub)}
 
 
 def login_required(current_user: Annotated[dict[str, int], Depends(get_current_user)]):
     if not current_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+        )
     return current_user

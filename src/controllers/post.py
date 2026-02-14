@@ -1,8 +1,8 @@
 from fastapi import status, APIRouter, Depends
-from schemas.post import PostIn, PostUpdateIn
-from views.post import PostOut
-from services.post import PostService
-from security import login_required
+from src.schemas.post import PostIn, PostUpdateIn
+from src.views.post import PostOut
+from src.services.post import PostService
+from src.security import login_required
 
 router = APIRouter(prefix="/posts", dependencies=[Depends(login_required)])
 service = PostService()
@@ -14,8 +14,10 @@ async def create_post(post: PostIn):
 
 
 @router.get("/", response_model=list[PostOut])
-async def read_posts(published: bool = False, limit: int = 10, skip: int = 0):
-    return await service.read_all(published, limit, skip)
+async def read_posts(published: str, limit: int = 10, skip: int = 0):
+    # Convert string to boolean: "on" -> True, "off" -> False
+    published_bool = published.lower() == "on"
+    return await service.read_all(published_bool, limit, skip)
 
 
 @router.get("/{id}", response_model=PostOut)

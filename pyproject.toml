@@ -2,10 +2,9 @@
 name = "dio-blog"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "joaolsouto",email = "contato.joaolsouto@gmail.com"}
-]
+authors = ["joaolsouto <contato.joaolsouto@gmail.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
