@@ -1,27 +1,32 @@
-[project]
+[tool.poetry]
 name = "dio-blog"
 version = "0.1.0"
 description = ""
 authors = [
     {name = "joaolsouto",email = "contato.joaolsouto@gmail.com"}
 ]
-requires-python = ">=3.12"
-dependencies = [
-    "fastapi",
-    "uvicorn[stabdard] (>=0.40.0,<0.41.0)",
-    "databases[aiosqlite] (>=0.9.0,<0.10.0)"
-]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "*"
+uvicorn = { extras = ["standard"], version = "^0.29.0" }
+databases = {version = "*", extras = ["aiosqlite", "asyncpg"]}
+pyjwt = "*"
+psycopg2-binary = "*"
+pydantic-settings = "*"
+alembic = "*"
 
 
-[tool.black]
-line-length = 120
-target-versions = ["py312"]
+[tool.poetry.group.dev.dependencies]
+pytest-asyncio = "*"
+pytest = "*"
+httpx = "*"
+pytest-mock = "*"
 
-[tool.flake8]
-max-line-length = 88
-extend-ignore = ["E203", "W503"]
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
